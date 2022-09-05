@@ -508,6 +508,7 @@ export default function MapView() {
     ], [])
 
     const [ready, setReady] = useState(false)
+    const [address, setAddress] = useState('')
 
     const [center, setCenter] = useState(new google.maps.LatLng(37.751266, -122.403355))
     const [autocomplete, setAutocomplete] = useState(null)
@@ -517,6 +518,8 @@ export default function MapView() {
         if (autocomplete?.getPlace()) {
             const lat = autocomplete.getPlace().geometry.location.lat()
             const lng = autocomplete.getPlace().geometry.location.lng()
+            const addressText = autocomplete.getPlace().formatted_address
+            setAddress(addressText)
             setCenter({lat, lng})
         }
     }
@@ -529,10 +532,28 @@ export default function MapView() {
         setReady(true)
     }, [])
 
+    const handleClick = async (e) => {
+        console.log('handleClick', {e})
+        setCenter(e.latLng);
+
+        const geocoder = new google.maps.Geocoder();
+        if (geocoder) {
+            try {
+                const response = await geocoder.geocode({location: e.latLng})
+                const addressText = response.results[0].formatted_address
+                setAddress(addressText)
+            } catch (e) {
+                console.log('handleClick geocode', {e})
+            }
+        }
+
+    }
+
     console.log('Home', {google})
 
     return (
-        <GoogleMap onLoad={onLoad} zoom={12} center={center} mapContainerClassName="map-container">
+        <GoogleMap onLoad={onLoad} onClick={handleClick} zoom={12} center={center}
+                   mapContainerClassName="map-container">
             {ready &&
                 <>
                     <Autocomplete
@@ -564,8 +585,9 @@ export default function MapView() {
                     />
                     <Marker
                         position={center}
+                        title={address}
                     />
-                    <Panning />
+                    <Panning address={address}/>
                 </>
             }
         </GoogleMap>

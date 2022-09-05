@@ -1,4 +1,3 @@
-import {useCallback} from "react";
 import {GoogleMap, useLoadScript, Autocomplete, Marker, HeatmapLayer} from "@react-google-maps/api";
 import MapView from "./MapView";
 
@@ -14,5 +13,10 @@ export default function Home() {
         return <div>Map cannot be loaded right now, sorry.</div>
     }
 
-    return isLoaded ? <MapView /> : <div>Loading...</div>;
+    return (
+        isLoaded ?
+            <MapView/>
+            :
+            <div>Loading...</div>
+    );
 }
